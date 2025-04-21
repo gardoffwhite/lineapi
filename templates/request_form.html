@@ -1,57 +1,131 @@
-<form method="post" action="/submit">
-    <label>User ID:</label>
-    <input type="text" name="userid" required>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ฟอร์มแก้ไขข้อมูลตัวละคร</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
 
-    <label>ชื่อตัวละคร:</label>
-    <input type="text" name="charname" required>
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            max-width: 100%;
+        }
 
-    <label>STR:</label>
-    <select name="str">
-        <option value="">-- เลือก --</option>
-        <option value="1000">1000</option>
-        <option value="1500">1500</option>
-        <option value="2000">2000</option>
-        <option value="2500">2500</option>
-        <option value="3000">3000</option>
-        <option value="3500">3500</option>
-        <option value="4000">4000</option>
-    </select>
+        h1 {
+            text-align: center;
+            color: #333;
+        }
 
-    <label>DEX:</label>
-    <select name="dex">
-        <option value="">-- เลือก --</option>
-        <option value="1000">1000</option>
-        <option value="1500">1500</option>
-        <option value="2000">2000</option>
-        <option value="2500">2500</option>
-        <option value="3000">3000</option>
-        <option value="3500">3500</option>
-        <option value="4000">4000</option>
-    </select>
+        label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+            color: #333;
+        }
 
-    <label>ESP:</label>
-    <select name="esp">
-        <option value="">-- เลือก --</option>
-        <option value="1000">1000</option>
-        <option value="1500">1500</option>
-        <option value="2000">2000</option>
-        <option value="2500">2500</option>
-        <option value="3000">3000</option>
-        <option value="3500">3500</option>
-        <option value="4000">4000</option>
-    </select>
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
 
-    <label>SPT:</label>
-    <select name="spt">
-        <option value="">-- เลือก --</option>
-        <option value="1000">1000</option>
-        <option value="1500">1500</option>
-        <option value="2000">2000</option>
-        <option value="2500">2500</option>
-        <option value="3000">3000</option>
-        <option value="3500">3500</option>
-        <option value="4000">4000</option>
-    </select>
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-    <input type="submit" value="ส่งคำขอ">
-</form>
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        select {
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+
+    <form method="post" action="/submit">
+        <h1>ฟอร์มแก้ไขข้อมูลตัวละคร</h1>
+        <label for="userid">User ID:</label>
+        <input type="text" name="userid" required>
+
+        <label for="charname">ชื่อตัวละคร:</label>
+        <input type="text" name="charname" required>
+
+        <label for="str">STR:</label>
+        <select name="str">
+            <option value="">-- เลือก --</option>
+            <option value="1000">1000</option>
+            <option value="1500">1500</option>
+            <option value="2000">2000</option>
+            <option value="2500">2500</option>
+            <option value="3000">3000</option>
+            <option value="3500">3500</option>
+            <option value="4000">4000</option>
+        </select>
+
+        <label for="dex">DEX:</label>
+        <select name="dex">
+            <option value="">-- เลือก --</option>
+            <option value="1000">1000</option>
+            <option value="1500">1500</option>
+            <option value="2000">2000</option>
+            <option value="2500">2500</option>
+            <option value="3000">3000</option>
+            <option value="3500">3500</option>
+            <option value="4000">4000</option>
+        </select>
+
+        <label for="esp">ESP:</label>
+        <select name="esp">
+            <option value="">-- เลือก --</option>
+            <option value="1000">1000</option>
+            <option value="1500">1500</option>
+            <option value="2000">2000</option>
+            <option value="2500">2500</option>
+            <option value="3000">3000</option>
+            <option value="3500">3500</option>
+            <option value="4000">4000</option>
+        </select>
+
+        <label for="spt">SPT:</label>
+        <select name="spt">
+            <option value="">-- เลือก --</option>
+            <option value="1000">1000</option>
+            <option value="1500">1500</option>
+            <option value="2000">2000</option>
+            <option value="2500">2500</option>
+            <option value="3000">3000</option>
+            <option value="3500">3500</option>
+            <option value="4000">4000</option>
+        </select>
+
+        <input type="submit" value="ส่งคำขอ">
+    </form>
+
+</body>
+</html>
