@@ -1,70 +1,81 @@
-<!DOCTYPE html>
 <html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            .container {
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 600px;
+                margin: 20px;
+            }
+
+            h2 {
+                text-align: center;
+                color: #333;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            th, td {
+                padding: 10px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+
+            a {
+                display: block;
+                text-align: center;
+                margin-top: 20px;
+                text-decoration: none;
+                color: #007BFF;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
     <body>
-        <h2>เข้าสู่แผงควบคุมแอดมิน</h2>
-        <!-- ฟอร์มกรอกรหัสผ่าน -->
-        <form method="post" action="/admin">
-            <label for="password">กรอกรหัสผ่าน:</label>
-            <input type="password" name="password" required><br><br>
-            <input type="submit" value="เข้าสู่แผงควบคุมแอดมิน">
-        </form>
-        
-        <!-- ฟอร์มการอัปเดตสถานะคำขอ (ซ่อนเมื่อไม่มีการยืนยันรหัสผ่าน) -->
-        <div id="update-status-form" style="display:none;">
-            <h2>จัดการคำขออัปเดตสเตตัส</h2>
-            <form action="/update_status" method="post">
-                <select name="request_id">
-                    <option value="">เลือกคำขอที่ต้องการอัปเดต</option>
-                    {% for request in requests %}
-                        <option value="{{ request.id }}">{{ request.charname }} - {{ request.userid }}</option>
-                    {% endfor %}
-                </select><br><br>
-
-                สถานะ:
-                <select name="status">
-                    <option value="กำลังส่ง GM แก้ไข">กำลังส่ง GM แก้ไข</option>
-                    <option value="อยู่ระหว่างแก้ไข กรุณาออกจากเกม">อยู่ระหว่างแก้ไข กรุณาออกจากเกม</option>
-                    <option value="แก้ไขสำเร็จ">แก้ไขสำเร็จ</option>
-                </select><br><br>
-
-                <input type="submit" value="อัปเดตสถานะ">
-            </form>
+        <div class="container">
+            <h2>แสดงคำขอแก้สเตตัส</h2>
+            <table>
+                <tr>
+                    <th>ชื่อผู้เล่น</th>
+                    <th>ตัวละคร</th>
+                    <th>สถานะ</th>
+                    <th>จัดการ</th>
+                </tr>
+                {% for request in requests %}
+                <tr>
+                    <td>{{ request.userid }}</td>
+                    <td>{{ request.charname }}</td>
+                    <td>{{ request.status }}</td>
+                    <td><a href="/status/{{ loop.index0 }}">ดูรายละเอียด</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+            <a href="/logout">ออกจากระบบ</a>
         </div>
-
-        <!-- แสดงสถานะคำขอที่อัปเดตแล้ว -->
-        <div id="status-result" style="display:none;">
-            <h2>สถานะคำขอถูกอัปเดตแล้ว</h2>
-            <p>คำขอถูกอัปเดตเป็น: <span id="status-message"></span></p>
-            <a href="/">กลับสู่หน้าแรก</a>
-        </div>
-
-        <script>
-            // JavaScript เพื่อซ่อน/แสดงฟอร์มการอัปเดตสถานะ
-            document.querySelector("form[action='/admin']").addEventListener("submit", function(event) {
-                event.preventDefault();  // ป้องกันการรีเฟรชหน้า
-                const password = document.querySelector("input[name='password']").value;
-
-                // ตรวจสอบรหัสผ่าน
-                if (password === 'YOUR_ADMIN_PASSWORD') {  // เปลี่ยน 'YOUR_ADMIN_PASSWORD' เป็นรหัสผ่านจริง
-                    document.getElementById("update-status-form").style.display = "block";  // แสดงฟอร์มอัปเดตสถานะ
-                    alert('เข้าสู่แผงควบคุมแอดมินเรียบร้อยแล้ว');
-                } else {
-                    alert('รหัสผ่านไม่ถูกต้อง');
-                }
-            });
-
-            // เมื่อฟอร์มการอัปเดตสถานะถูกส่ง จะซ่อนฟอร์มเดิมและแสดงผลลัพธ์
-            document.querySelector("form[action='/update_status']").addEventListener("submit", function(event) {
-                event.preventDefault();  // ป้องกันการรีเฟรชหน้า
-                const status = document.querySelector("select[name='status']").value;
-
-                // ซ่อนฟอร์มการอัปเดตสถานะ
-                document.getElementById("update-status-form").style.display = "none";
-                
-                // แสดงสถานะคำขอที่อัปเดต
-                document.getElementById("status-result").style.display = "block";
-                document.getElementById("status-message").textContent = status;
-            });
-        </script>
     </body>
 </html>
