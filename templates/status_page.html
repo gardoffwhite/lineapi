@@ -1,69 +1,22 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สถานะคำขอ - N-Age Warzone</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: #f8fafc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .status-card {
-            background: #1e293b;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            width: 400px;
-        }
-        h2 {
-            color: #38bdf8;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .status-detail {
-            background: #334155;
-            padding: 15px;
-            border-radius: 10px;
-        }
-        .status-detail p {
-            margin: 5px 0;
-        }
-        .status {
-            font-weight: bold;
-            color: #facc15;
-        }
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #38bdf8;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>Status</title>
 </head>
 <body>
-    <div class="status-card">
-        <h2>สถานะคำขอ</h2>
-        <div class="status-detail">
-            <p><strong>UserID:</strong> {{ request['userid'] }}</p>
-            <p><strong>ชื่อตัวละคร:</strong> {{ request['charname'] }}</p>
-            <p><strong>STR:</strong> {{ request['str'] }}</p>
-            <p><strong>DEX:</strong> {{ request['dex'] }}</p>
-            <p><strong>ESP:</strong> {{ request['esp'] }}</p>
-            <p><strong>SPT:</strong> {{ request['spt'] }}</p>
-            <p><strong>สถานะ:</strong> <span class="status">{{ request['status'] }}</span></p>
-        </div>
-        <a href="/">ส่งคำขอใหม่</a>
-    </div>
+    <h1>Request Status</h1>
+    <p>UserID: {{ request.userid }}</p>
+    <p>Charname: {{ request.charname }}</p>
+    <p>Status: {{ request.status }}</p>
+
+    {% if request.status == "กำลังส่ง GM แก้ไข" %}
+        <p>สถานะ: กำลังส่ง GM แก้ไข</p>
+    {% elif request.status == "อยู่ระหว่างแก้ไข กรุณาออกจากเกม" %}
+        <p>สถานะ: อยู่ระหว่างแก้ไข กรุณาออกจากเกม</p>
+    {% elif request.status == "แก้ไขสำเร็จ" %}
+        <p>สถานะ: แก้ไขสำเร็จ</p>
+    {% endif %}
 </body>
 </html>
