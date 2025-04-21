@@ -1,22 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Status</title>
+    <title>ข้อมูลการแก้ไขสเตตัส</title>
 </head>
 <body>
-    <h1>Request Status</h1>
-    <p>UserID: {{ request.userid }}</p>
-    <p>Charname: {{ request.charname }}</p>
-    <p>Status: {{ request.status }}</p>
+    <h1>คำขอแก้ไขข้อมูลสเตตัส</h1>
 
-    {% if request.status == "กำลังส่ง GM แก้ไข" %}
-        <p>สถานะ: กำลังส่ง GM แก้ไข</p>
-    {% elif request.status == "อยู่ระหว่างแก้ไข กรุณาออกจากเกม" %}
-        <p>สถานะ: อยู่ระหว่างแก้ไข กรุณาออกจากเกม</p>
-    {% elif request.status == "แก้ไขสำเร็จ" %}
-        <p>สถานะ: แก้ไขสำเร็จ</p>
-    {% endif %}
+    <table border="1">
+        <tr>
+            <th>ข้อมูล</th>
+            <th>ค่า</th>
+        </tr>
+        <tr>
+            <td>UserID</td>
+            <td>{{ request.userid }}</td>
+        </tr>
+        <tr>
+            <td>ชื่อตัวละคร</td>
+            <td>{{ request.charname }}</td>
+        </tr>
+        <tr>
+            <td>STR</td>
+            <td>{{ request.str }}</td>
+        </tr>
+        <tr>
+            <td>DEX</td>
+            <td>{{ request.dex }}</td>
+        </tr>
+        <tr>
+            <td>ESP</td>
+            <td>{{ request.esp }}</td>
+        </tr>
+        <tr>
+            <td>SPT</td>
+            <td>{{ request.spt }}</td>
+        </tr>
+        <tr>
+            <td>lvpoint</td>
+            <td>{{ request.lvpoint }}</td>
+        </tr>
+        <tr>
+            <td>สถานะคำขอ</td>
+            <td>{{ request.status }}</td>
+        </tr>
+    </table>
+
+    <br>
+    <a href="/admin">กลับสู่หน้าหลักของแอดมิน</a>
 </body>
 </html>
