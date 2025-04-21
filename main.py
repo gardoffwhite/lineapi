@@ -17,6 +17,10 @@ headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 # ตัวแปรสำหรับเก็บคำขอที่เข้ามา
 request_data_store = []
 
+LINE_ACCESS_TOKEN = '0iM/gg2Fj9sfdfw9pgEa9bSqLquHGZTgXyVub75iHO3TngYJKrMRrKy15BgCdlrAaBmicPz8c/5dkwce2ebL28zVKpV/6SSdnOnSFzX92jyakeBbPZOKjkzT8duPa8kB+km4j49TPnB5TdpDM29G7AdB04t89/1O/w1cDnyilFU='  # ใช้ Channel Access Token ของคุณ
+LINE_API_URL = 'https://api.line.me/v2/bot/message/push'  # URL สำหรับส่งข้อความ
+ADMIN_USER_ID = 'U85e0052a3176ddd793470a41b02b69fe'  # ใช้ User ID ของแอดมินที่ต้องการให้แชทบอทส่งข้อความไปหา
+
 # ฟังก์ชันในการดึงข้อมูลตัวละคร
 def get_character_data(charname=""):
     try:
@@ -55,11 +59,10 @@ def distribute_lvpoint(lvpoint, stats_group, existing_values):
 
 # ฟังก์ชันการส่งข้อความแจ้งเตือนผ่าน LINE
 def send_line_message(user_id: str, message: str):
-    line_access_token = 'LINE_ACCESS_TOKEN'  # ใส่ Token ของ LINE ที่นี่
     line_api_url = 'https://api.line.me/v2/bot/message/push'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {line_access_token}'
+        'Authorization': f'Bearer {LINE_ACCESS_TOKEN}'
     }
     data = {
         "to": user_id,
@@ -85,7 +88,7 @@ def admin_dashboard():
                 'status': 'กำลังส่ง GM แก้ไข'
             })
             message = f"มีคำขอแก้ไขข้อมูลตัวละคร: {charname}"
-            send_line_message("ADMIN_USER_ID", message)
+            send_line_message(ADMIN_USER_ID, message)
             return redirect(url_for('admin_dashboard'))
 
     return render_template('admin_dashboard.html', requests=request_data_store)
@@ -96,7 +99,7 @@ def update_status(request_id):
     if request_id < len(request_data_store):
         request_data_store[request_id]['status'] = new_status
         message = f"คำขอ {request_data_store[request_id]['charname']} เปลี่ยนสถานะเป็น: {new_status}"
-        send_line_message("ADMIN_USER_ID", message)
+        send_line_message(ADMIN_USER_ID, message)
     return redirect(url_for('admin_dashboard'))
 
 if __name__ == '__main__':
