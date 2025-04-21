@@ -1,124 +1,48 @@
-<html>
-    <head>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f4f4f4;
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-            }
-
-            .container {
-                background-color: white;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                width: 100%;
-                max-width: 800px;
-                margin: 20px;
-            }
-
-            h2 {
-                text-align: center;
-                color: #333;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-            }
-
-            th, td {
-                padding: 10px;
-                text-align: left;
-                border: 1px solid #ddd;
-                vertical-align: top;
-            }
-
-            th {
-                background-color: #f2f2f2;
-            }
-
-            form {
-                display: flex;
-                gap: 5px;
-                align-items: center;
-                justify-content: start;
-            }
-
-            select, button, input[type="text"] {
-                padding: 5px 10px;
-                border-radius: 5px;
-                border: 1px solid #ccc;
-            }
-
-            button {
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                cursor: pointer;
-            }
-
-            button:hover {
-                background-color: #45a049;
-            }
-
-            a {
-                display: block;
-                text-align: center;
-                margin-top: 20px;
-                text-decoration: none;
-                color: #007BFF;
-            }
-
-            a:hover {
-                text-decoration: underline;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>แสดงคำขอแก้สเตตัส</h2>
-
-            <!-- ฟอร์มค้นหาชื่อตัวละคร -->
-            <form action="/search_char" method="get">
-                <input type="text" name="charname" placeholder="กรอกชื่อตัวละครเพื่อค้นหา" required>
-                <button type="submit">ค้นหา</button>
-            </form>
-
-            <table>
-                <tr>
-                    <th>UserID</th>
-                    <th>ตัวละคร</th>
-                    <th>สถานะ</th>
-                    <th>เปลี่ยนสถานะ</th>
-                </tr>
-                {% for request in requests %}
-                <tr>
-                    <td>{{ request.userid }}</td>
-                    <td>{{ request.charname }}</td>
-                    <td>{{ request.status }}</td>
-                    <td>
-                        <form action="/update_status" method="post">
-                            <input type="hidden" name="request_id" value="{{ loop.index0 }}">
-                            <select name="status" required>
-                                <option value="">-- เลือกสถานะ --</option>
-                                <option value="กำลังส่ง GM แก้ไข">กำลังส่ง GM แก้ไข</option>
-                                <option value="อยู่ระหว่างแก้ไข กรุณาออกจากเกม">อยู่ระหว่างแก้ไข กรุณาออกจากเกม</option>
-                                <option value="แก้ไขสำเร็จ">แก้ไขสำเร็จ</option>
-                            </select>
-                            <button type="submit">อัปเดต</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-            <a href="/logout">ออกจากระบบ</a>
-        </div>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>UserID</th>
+                <th>Character Name</th>
+                <th>STR</th>
+                <th>DEX</th>
+                <th>ESP</th>
+                <th>SPT</th>
+                <th>Status</th>
+                <th>Update Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.userid }}</td>
+                <td>{{ request.charname }}</td>
+                <td>{{ request.str }}</td>
+                <td>{{ request.dex }}</td>
+                <td>{{ request.esp }}</td>
+                <td>{{ request.spt }}</td>
+                <td>{{ request.status }}</td>
+                <td>
+                    <form action="/update_status" method="post">
+                        <input type="hidden" name="request_id" value="{{ loop.index0 }}">
+                        <select name="status">
+                            <option value="กำลังส่ง GM แก้ไข">กำลังส่ง GM แก้ไข</option>
+                            <option value="อยู่ระหว่างแก้ไข กรุณาออกจากเกม">อยู่ระหว่างแก้ไข กรุณาออกจากเกม</option>
+                            <option value="แก้ไขสำเร็จ">แก้ไขสำเร็จ</option>
+                        </select>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
 </html>
