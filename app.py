@@ -69,7 +69,7 @@ def index():
         charname = request.form.get('charname', '').strip()
         char_data = get_character_data(charname)
 
-    return render_template('index.html', char_data=char_data, charname=charname)
+    return render_template('admin_dashboard.html', char_data=char_data, charname=charname)
 
 if __name__ == '__main__':
     app.run(debug=True)
