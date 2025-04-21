@@ -101,13 +101,16 @@ async def update_status(request_id: int = Form(...), status: str = Form(...)):
     if request_id < 0 or request_id >= len(request_data_store):
         raise HTTPException(status_code=400, detail="ไม่พบคำขอนี้")
 
+    # อัปเดตสถานะคำขอใน store
     request_data_store[request_id]["status"] = status
     request = request_data_store[request_id]
 
+    # ส่งข้อความผ่าน LINE
     message = f"คำขอของ {request['charname']} ({request['userid']}) ถูกอัปเดตสถานะเป็น: {status}"
     send_line_message(ADMIN_USER_ID, message)
 
-    return RedirectResponse(url="/admin", status_code=303)
+    # ส่งผู้ใช้ไปยังหน้าแสดงสถานะคำขอที่อัปเดตแล้ว
+    return RedirectResponse(url=f"/status/{request_id}", status_code=303)
 
 
 @app.get("/logout")
