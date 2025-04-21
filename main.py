@@ -42,16 +42,21 @@ async def form_post(request: Request):
 @app.post("/submit")
 async def handle_request(
         userid: str = Form(...), charname: str = Form(...),
-        str: str = Form(...), dex: str = Form(...),
-        esp: str = Form(...), spt: str = Form(...)):
+        str: str = Form(None), dex: str = Form(None),
+        esp: str = Form(None), spt: str = Form(None)):
 
+    # ตรวจสอบว่า `userid` และ `charname` ต้องกรอกทุกครั้ง
+    if not userid or not charname:
+        raise HTTPException(status_code=400, detail="กรุณากรอก UserID และ ชื่อตัวละคร")
+
+    # กำหนดค่าคงที่ถ้าผู้ใช้ไม่ได้กรอกช่องใดช่องหนึ่ง
     request_data = {
         "userid": userid,
         "charname": charname,
-        "str": str,
-        "dex": dex,
-        "esp": esp,
-        "spt": spt,
+        "str": str if str else "ไม่ระบุ",
+        "dex": dex if dex else "ไม่ระบุ",
+        "esp": esp if esp else "ไม่ระบุ",
+        "spt": spt if spt else "ไม่ระบุ",
         "status": "กำลังส่ง GM แก้ไข"
     }
 
