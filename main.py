@@ -1,9 +1,13 @@
 from fastapi import FastAPI, Form, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 import requests as req
 import json
 
 app = FastAPI()
+
+# กำหนดเส้นทางของ template directory
+templates = Jinja2Templates(directory="templates")
 
 LINE_ACCESS_TOKEN = '0iM/gg2Fj9sfdfw9pgEa9bSqLquHGZTgXyVub75iHO3TngYJKrMRrKy15BgCdlrAaBmicPz8c/5dkwce2ebL28zVKpV/6SSdnOnSFzX92jyakeBbPZOKjkzT8duPa8kB+km4j49TPnB5TdpDM29G7AdB04t89/1O/w1cDnyilFU='
 LINE_API_URL = 'https://api.line.me/v2/bot/message/push'
@@ -31,59 +35,8 @@ def send_line_message(user_id: str, message: str):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def form_post():
-    return """
-    <html>
-        <body>
-            <h2>ขออัปเดตสเตตัส</h2>
-            <form method="post" action="/submit">
-                User ID: <input type="text" name="userid" required><br><br>
-                ชื่อตัวละคร: <input type="text" name="charname" required><br><br>
-                STR: <select name="str">
-                    <option value="">-- เลือก --</option>
-                    <option value="1000">1000</option>
-                    <option value="1500">1500</option>
-                    <option value="2000">2000</option>
-                    <option value="2500">2500</option>
-                    <option value="3000">3000</option>
-                    <option value="3500">3500</option>
-                    <option value="4000">4000</option>
-                </select><br><br>
-                DEX: <select name="dex">
-                    <option value="">-- เลือก --</option>
-                    <option value="1000">1000</option>
-                    <option value="1500">1500</option>
-                    <option value="2000">2000</option>
-                    <option value="2500">2500</option>
-                    <option value="3000">3000</option>
-                    <option value="3500">3500</option>
-                    <option value="4000">4000</option>
-                </select><br><br>
-                ESP: <select name="esp">
-                    <option value="">-- เลือก --</option>
-                    <option value="1000">1000</option>
-                    <option value="1500">1500</option>
-                    <option value="2000">2000</option>
-                    <option value="2500">2500</option>
-                    <option value="3000">3000</option>
-                    <option value="3500">3500</option>
-                    <option value="4000">4000</option>
-                </select><br><br>
-                SPT: <select name="spt">
-                    <option value="">-- เลือก --</option>
-                    <option value="1000">1000</option>
-                    <option value="1500">1500</option>
-                    <option value="2000">2000</option>
-                    <option value="2500">2500</option>
-                    <option value="3000">3000</option>
-                    <option value="3500">3500</option>
-                    <option value="4000">4000</option>
-                </select><br><br>
-                <input type="submit" value="ส่งคำขอ">
-            </form>
-        </body>
-    </html>
-    """
+async def form_post(request: Request):
+    return templates.TemplateResponse("request_form.html", {"request": request})
 
 
 @app.post("/submit")
@@ -112,84 +65,35 @@ async def handle_request(
 
 
 @app.get("/status/{request_id}", response_class=HTMLResponse)
-async def status_page(request_id: int):
+async def status_page(request: Request, request_id: int):
     if request_id < 0 or request_id >= len(request_data_store):
-        return "<h2>ไม่พบคำขอนี้</h2>"
+        return templates.TemplateResponse("error.html", {"request": request, "message": "ไม่พบคำขอนี้"})
 
     request = request_data_store[request_id]
 
-    return f"""
-    <html>
-        <head>
-            <meta http-equiv="refresh" content="5">
-        </head>
-        <body>
-            <h2>สถานะคำขอของ {request['charname']}</h2>
-            <p>UserID: {request['userid']}</p>
-            <p>STR: {request['str']} | DEX: {request['dex']} | ESP: {request['esp']} | SPT: {request['spt']}</p>
-            <h3>สถานะล่าสุด: {request['status']}</h3>
-            <p>หน้าจะรีเฟรชทุก 5 วินาที</p>
-            <a href="/">กลับไปส่งคำขอใหม่</a>
-        </body>
-    </html>
-    """
+    return templates.TemplateResponse("status_page.html", {"request": request})
 
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_dashboard_form(request: Request):
     if request.cookies.get("admin_logged") == "true":
-        return await show_admin_dashboard()
+        return await show_admin_dashboard(request)
     
-    return """
-    <html>
-        <body>
-            <h2>กรอกรหัสผ่านแอดมิน</h2>
-            <form method="post" action="/admin">
-                รหัสผ่าน: <input type="password" name="password" required><br><br>
-                <input type="submit" value="เข้าสู่แผงควบคุม">
-            </form>
-        </body>
-    </html>
-    """
+    return templates.TemplateResponse("admin_login.html", {"request": request})
 
 
 @app.post("/admin", response_class=HTMLResponse)
 async def admin_dashboard(request: Request, response: Response, password: str = Form(...)):
-
     if password != ADMIN_PASSWORD:
         raise HTTPException(status_code=401, detail="ไม่อนุญาตให้เข้าถึง")
 
     response.set_cookie(key="admin_logged", value="true", httponly=True)
 
-    return await show_admin_dashboard()
+    return await show_admin_dashboard(request)
 
 
-async def show_admin_dashboard():
-    return f"""
-    <html>
-        <body>
-            <h2>แผงควบคุมแอดมิน</h2>
-            <h3>คำขอที่รออัปเดต:</h3>
-            <ul>
-                {''.join([f"<li>{i}: {req['charname']} ({req['userid']}) - สถานะ: {req['status']}</li>" for i, req in enumerate(request_data_store)])}
-            </ul>
-            <form action="/update_status" method="post">
-                เลือกคำขอ (Request ID):
-                <select name="request_id">
-                    {''.join([f'<option value="{index}">{req["charname"]} - {req["userid"]}</option>' for index, req in enumerate(request_data_store)])}
-                </select><br><br>
-
-                สถานะใหม่:
-                <select name="status">
-                    <option value="กำลังส่ง GM แก้ไข">กำลังส่ง GM แก้ไข</option>
-                    <option value="อยู่ระหว่างแก้ไข กรุณาออกจากเกม">อยู่ระหว่างแก้ไข กรุณาออกจากเกม</option>
-                    <option value="แก้ไขสำเร็จ">แก้ไขสำเร็จ</option>
-                </select><br><br>
-                <input type="submit" value="อัปเดตสถานะ">
-            </form>
-        </body>
-    </html>
-    """
+async def show_admin_dashboard(request: Request):
+    return templates.TemplateResponse("admin_dashboard.html", {"request": request, "requests": request_data_store})
 
 
 @app.post("/update_status")
