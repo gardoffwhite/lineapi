@@ -1,0 +1,67 @@
+<html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+
+            .container {
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 600px;
+                margin: 20px;
+            }
+
+            h2 {
+                text-align: center;
+                color: #333;
+            }
+
+            input {
+                padding: 8px;
+                width: 100%;
+                margin-bottom: 15px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+            input[type="submit"] {
+                background-color: #4CAF50;
+                color: white;
+                cursor: pointer;
+                border: none;
+            }
+
+            input[type="submit"]:hover {
+                background-color: #45a049;
+            }
+
+            a {
+                text-align: center;
+                display: block;
+                text-decoration: none;
+                color: #007BFF;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>เข้าสู่ระบบแอดมิน</h2>
+            <form method="post">
+                <input type="password" name="password" placeholder="รหัสผ่าน" required><br><br>
+                <input type="submit" value="เข้าสู่ระบบ">
+            </form>
+        </div>
+    </body>
+</html>
