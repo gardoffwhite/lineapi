@@ -45,25 +45,21 @@ async def handle_request(
         str: str = Form(None), dex: str = Form(None),
         esp: str = Form(None), spt: str = Form(None)):
 
-    # ตรวจสอบว่า `userid` และ `charname` ต้องกรอกทุกครั้ง
     if not userid or not charname:
         raise HTTPException(status_code=400, detail="กรุณากรอก UserID และ ชื่อตัวละคร")
 
-    # กำหนดค่าคงที่ถ้าผู้ใช้ไม่ได้กรอกช่องใดช่องหนึ่ง
     request_data = {
         "userid": userid,
         "charname": charname,
         "str": str if str else "ไม่ระบุ",
         "dex": dex if dex else "ไม่ระบุ",
-        "esp": esp if esp else "ไม่ระบุ",
-        "spt": spt if spt else "ไม่ระบุ",
         "status": "กำลังส่ง GM แก้ไข"
     }
 
     request_data_store.append(request_data)
     request_id = len(request_data_store) - 1
 
-    message = f"มีคำขอแก้สเตตัสในเกม\n\nUserID: {userid}\nตัวละคร: {charname}\nSTR: {str}\nDEX: {dex}\nESP: {esp}\nSPT: {spt}"
+    message = f"มีคำขอแก้สเตตัสในเกม\n\nUserID: {userid}\nตัวละคร: {charname}\nSTR: {str}\nDEX: {dex}"
     send_line_message(ADMIN_USER_ID, message)
 
     return RedirectResponse(url=f"/status/{request_id}", status_code=303)
@@ -106,17 +102,13 @@ async def update_status(request_id: int = Form(...), status: str = Form(...)):
     if request_id < 0 or request_id >= len(request_data_store):
         raise HTTPException(status_code=400, detail="ไม่พบคำขอนี้")
 
-    # อัปเดตสถานะคำขอใน store
     request_data_store[request_id]["status"] = status
     request = request_data_store[request_id]
 
-    # ส่งข้อความผ่าน LINE
     message = f"คำขอของ {request['charname']} ({request['userid']}) ถูกอัปเดตสถานะเป็น: {status}"
     send_line_message(ADMIN_USER_ID, message)
 
-    # เปลี่ยน redirect ให้กลับไปหน้า /admin แทน
     return RedirectResponse(url="/admin", status_code=303)
-
 
 
 @app.get("/logout")
