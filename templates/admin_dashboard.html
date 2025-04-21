@@ -2,47 +2,99 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .form-container {
+            margin: 20px 0;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 250px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Admin Dashboard</h1>
+
+    <h1>Admin Dashboard - Character Management</h1>
+
+    <!-- ฟอร์มกรอกชื่อ Character -->
+    <div class="form-container">
+        <form method="POST" action="/">
+            <label for="charname">Enter Character Name:</label>
+            <input type="text" name="charname" id="charname" value="{{ charname }}" placeholder="Enter character name">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <!-- แสดงข้อมูลตัวละคร -->
+    {% if char_data %}
+    <h2>Character Data for: {{ charname }}</h2>
     <table>
-        <thead>
-            <tr>
-                <th>UserID</th>
-                <th>Character Name</th>
-                <th>STR</th>
-                <th>DEX</th>
-                <th>ESP</th>
-                <th>SPT</th>
-                <th>Status</th>
-                <th>Update Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for request in requests %}
-            <tr>
-                <td>{{ request.userid }}</td>
-                <td>{{ request.charname }}</td>
-                <td>{{ request.str }}</td>
-                <td>{{ request.dex }}</td>
-                <td>{{ request.esp }}</td>
-                <td>{{ request.spt }}</td>
-                <td>{{ request.status }}</td>
-                <td>
-                    <form action="/update_status" method="post">
-                        <input type="hidden" name="request_id" value="{{ loop.index0 }}">
-                        <select name="status">
-                            <option value="กำลังส่ง GM แก้ไข">กำลังส่ง GM แก้ไข</option>
-                            <option value="อยู่ระหว่างแก้ไข กรุณาออกจากเกม">อยู่ระหว่างแก้ไข กรุณาออกจากเกม</option>
-                            <option value="แก้ไขสำเร็จ">แก้ไขสำเร็จ</option>
-                        </select>
-                        <button type="submit">Update</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
+        <tr>
+            <th>Field</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Character Name</td>
+            <td>{{ charname }}</td>
+        </tr>
+        <tr>
+            <td>STR (Strength)</td>
+            <td>{{ char_data['str'] }}</td>
+        </tr>
+        <tr>
+            <td>DEX (Dexterity)</td>
+            <td>{{ char_data['dex'] }}</td>
+        </tr>
+        <tr>
+            <td>LVPOINT (Level Points)</td>
+            <td>{{ char_data['lvpoint'] }}</td>
+        </tr>
+        <tr>
+            <td>Distributed STR</td>
+            <td>{{ char_data['str'] }}</td>
+        </tr>
+        <tr>
+            <td>Distributed DEX</td>
+            <td>{{ char_data['dex'] }}</td>
+        </tr>
     </table>
+    {% else %}
+        <p>No character data available. Please enter a character name to search.</p>
+    {% endif %}
+
 </body>
 </html>
