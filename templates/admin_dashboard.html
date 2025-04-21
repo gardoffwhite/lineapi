@@ -1,15 +1,42 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
 </head>
 <body>
-    <h2>คำขอที่รอจัดการ</h2>
-    <ul>
-        {% for req in requests %}
-        <li>ตัวละคร: {{ req.charname }} | UserID: {{ req.userid }} | สถานะ: {{ req.status }}</li>
-        {% endfor %}
-    </ul>
+    <h1>Dashboard</h1>
+    <a href="/logout">Logout</a>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>UserID</th>
+                <th>Charname</th>
+                <th>Status</th>
+                <th>Update Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.userid }}</td>
+                <td>{{ request.charname }}</td>
+                <td>{{ request.status }}</td>
+                <td>
+                    <form action="/update_status" method="post">
+                        <input type="hidden" name="request_id" value="{{ loop.index0 }}">
+                        <select name="status">
+                            <option value="กำลังส่ง GM แก้ไข" {% if request.status == "กำลังส่ง GM แก้ไข" %}selected{% endif %}>กำลังส่ง GM แก้ไข</option>
+                            <option value="อยู่ระหว่างแก้ไข กรุณาออกจากเกม" {% if request.status == "อยู่ระหว่างแก้ไข กรุณาออกจากเกม" %}selected{% endif %}>อยู่ระหว่างแก้ไข กรุณาออกจากเกม</option>
+                            <option value="แก้ไขสำเร็จ" {% if request.status == "แก้ไขสำเร็จ" %}selected{% endif %}>แก้ไขสำเร็จ</option>
+                        </select>
+                        <button type="submit">Update Status</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
