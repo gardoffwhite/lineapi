@@ -5,16 +5,11 @@
     <title>Admin Dashboard</title>
 </head>
 <body>
-    <h2>คำขอทั้งหมด</h2>
+    <h2>คำขอที่รอจัดการ</h2>
     <ul>
-    {% for item in requests %}
-        <li>ตัวละคร: {{ item.charname }} | สถานะ: {{ item.status }}</li>
-    {% endfor %}
+        {% for req in requests %}
+        <li>ตัวละคร: {{ req.charname }} | UserID: {{ req.userid }} | สถานะ: {{ req.status }}</li>
+        {% endfor %}
     </ul>
-    <h3>ตรวจสอบข้อมูลตัวละคร</h3>
-    <form action="/fetch-char" method="post">
-        <input type="text" name="charname" placeholder="ชื่อตัวละคร">
-        <button type="submit">ตรวจสอบข้อมูล</button>
-    </form>
 </body>
 </html>
