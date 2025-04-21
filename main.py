@@ -8,7 +8,7 @@ app = FastAPI()
 LINE_ACCESS_TOKEN = '0iM/gg2Fj9sfdfw9pgEa9bSqLquHGZTgXyVub75iHO3TngYJKrMRrKy15BgCdlrAaBmicPz8c/5dkwce2ebL28zVKpV/6SSdnOnSFzX92jyakeBbPZOKjkzT8duPa8kB+km4j49TPnB5TdpDM29G7AdB04t89/1O/w1cDnyilFU='
 LINE_API_URL = 'https://api.line.me/v2/bot/message/push'
 ADMIN_USER_ID = 'U85e0052a3176ddd793470a41b02b69fe'
-ADMIN_PASSWORD = "admin123"
+ADMIN_PASSWORD = "admin123"  # สามารถเปลี่ยนรหัสผ่านได้ที่นี่
 
 request_data_store = []
 
