@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 import requests
 from bs4 import BeautifulSoup
 
-app = Flask(__name__)
+app = FastAPI()
 
 # URL ที่ใช้ในการ login และดึงข้อมูลตัวละคร
 login_url = "http://nage-warzone.com/admin/index.php"
@@ -76,31 +77,44 @@ def send_line_message(user_id: str, message: str):
         print(f"Error sending message: {response.status_code}")
         print(response.text)
 
-@app.route('/admin', methods=['GET', 'POST'])
-def admin_dashboard():
-    if request.method == 'POST':
-        charname = request.form.get('charname')
-        if charname:
-            char_data = get_character_data(charname)
-            request_data_store.append({
-                'charname': charname,
-                'data': char_data,
-                'status': 'กำลังส่ง GM แก้ไข'
-            })
-            message = f"มีคำขอแก้ไขข้อมูลตัวละคร: {charname}"
-            send_line_message(ADMIN_USER_ID, message)
-            return redirect(url_for('admin_dashboard'))
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    return """
+        <html>
+            <head>
+                <title>FastAPI + Flask</title>
+            </head>
+            <body>
+                <h1>Welcome to FastAPI and Flask App!</h1>
+            </body>
+        </html>
+    """
 
-    return render_template('admin_dashboard.html', requests=request_data_store)
+@app.get("/admin")
+async def admin_dashboard():
+    return {"message": "Admin Dashboard"}
 
-@app.route('/update_status/<int:request_id>', methods=['POST'])
-def update_status(request_id):
-    new_status = request.form.get('status')
+@app.post("/admin")
+async def submit_charname(request: Request):
+    form = await request.form()
+    charname = form.get('charname')
+    if charname:
+        char_data = get_character_data(charname)
+        request_data_store.append({
+            'charname': charname,
+            'data': char_data,
+            'status': 'กำลังส่ง GM แก้ไข'
+        })
+        message = f"มีคำขอแก้ไขข้อมูลตัวละคร: {charname}"
+        send_line_message(ADMIN_USER_ID, message)
+    return {"message": "Request submitted successfully"}
+
+@app.post("/update_status/{request_id}")
+async def update_status(request_id: int, request: Request):
+    form = await request.form()
+    new_status = form.get('status')
     if request_id < len(request_data_store):
         request_data_store[request_id]['status'] = new_status
         message = f"คำขอ {request_data_store[request_id]['charname']} เปลี่ยนสถานะเป็น: {new_status}"
         send_line_message(ADMIN_USER_ID, message)
-    return redirect(url_for('admin_dashboard'))
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    return {"message": "Status updated successfully"}
