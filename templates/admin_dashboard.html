@@ -18,7 +18,7 @@
                 border-radius: 8px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
                 width: 100%;
-                max-width: 600px;
+                max-width: 800px;
                 margin: 20px;
             }
 
@@ -37,10 +37,35 @@
                 padding: 10px;
                 text-align: left;
                 border: 1px solid #ddd;
+                vertical-align: top;
             }
 
             th {
                 background-color: #f2f2f2;
+            }
+
+            form {
+                display: flex;
+                gap: 5px;
+                align-items: center;
+                justify-content: start;
+            }
+
+            select, button {
+                padding: 5px 10px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+            button {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #45a049;
             }
 
             a {
@@ -61,17 +86,28 @@
             <h2>แสดงคำขอแก้สเตตัส</h2>
             <table>
                 <tr>
-                    <th>ชื่อผู้เล่น</th>
+                    <th>UserID</th>
                     <th>ตัวละคร</th>
                     <th>สถานะ</th>
-                    <th>จัดการ</th>
+                    <th>เปลี่ยนสถานะ</th>
                 </tr>
                 {% for request in requests %}
                 <tr>
                     <td>{{ request.userid }}</td>
                     <td>{{ request.charname }}</td>
                     <td>{{ request.status }}</td>
-                    <td><a href="/status/{{ loop.index0 }}">ดูรายละเอียด</a></td>
+                    <td>
+                        <form action="/update_status" method="post">
+                            <input type="hidden" name="request_id" value="{{ loop.index0 }}">
+                            <select name="status" required>
+                                <option value="">-- เลือกสถานะ --</option>
+                                <option value="กำลังส่ง GM แก้ไข">กำลังส่ง GM แก้ไข</option>
+                                <option value="อยู่ระหว่างแก้ไข กรุณาออกจากเกม">อยู่ระหว่างแก้ไข กรุณาออกจากเกม</option>
+                                <option value="แก้ไขสำเร็จ">แก้ไขสำเร็จ</option>
+                            </select>
+                            <button type="submit">อัปเดต</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </table>
