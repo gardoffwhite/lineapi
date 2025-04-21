@@ -1,25 +1,65 @@
-from fastapi import FastAPI, Form, HTTPException, Request, Response
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
-import requests as req
-import json
+from flask import Flask, render_template, request, redirect, url_for
+import requests
+from bs4 import BeautifulSoup
 
-app = FastAPI()
+app = Flask(__name__)
 
-# กำหนดเส้นทางของ template directory
-templates = Jinja2Templates(directory="templates")
+# URL ที่ใช้ในการ login และดึงข้อมูลตัวละคร
+login_url = "http://nage-warzone.com/admin/index.php"
+charedit_url = "http://nage-warzone.com/admin/charedit.php"
+logout_url = "http://nage-warzone.com/admin/?logout=session_id()"
 
-LINE_ACCESS_TOKEN = '0iM/gg2Fj9sfdfw9pgEa9bSqLquHGZTgXyVub75iHO3TngYJKrMRrKy15BgCdlrAaBmicPz8c/5dkwce2ebL28zVKpV/6SSdnOnSFzX92jyakeBbPZOKjkzT8duPa8kB+km4j49TPnB5TdpDM29G7AdB04t89/1O/w1cDnyilFU='
-LINE_API_URL = 'https://api.line.me/v2/bot/message/push'
-ADMIN_USER_ID = 'U85e0052a3176ddd793470a41b02b69fe'
-ADMIN_PASSWORD = "admin123"  # สามารถเปลี่ยนรหัสผ่านได้ที่นี่
+# ข้อมูลสำหรับการ login
+login_payload = {"username": "admin", "password": "3770", "submit": "Submit"}
+session = requests.Session()
+headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
+# ตัวแปรสำหรับเก็บคำขอที่เข้ามา
 request_data_store = []
 
+# ฟังก์ชันในการดึงข้อมูลตัวละคร
+def get_character_data(charname=""):
+    try:
+        session.post(login_url, data=login_payload, headers=headers, timeout=20)
+        char_resp = session.post(charedit_url, data={"charname": charname, "searchname": "Submit"}, headers=headers, timeout=20)
+        soup = BeautifulSoup(char_resp.text, "html.parser")
+    except requests.exceptions.RequestException as e:
+        return f"Error: {e}"
+
+    placeholders = soup.find_all('input', {'placeholder': True})
+    data = {}
+    for placeholder in placeholders:
+        field_name = placeholder.get('name')
+        placeholder_value = placeholder.get('placeholder')
+        data[field_name] = int(placeholder_value) if placeholder_value.isdigit() else 0
+
+    lvpoint = int(data.get("lvpoint", 0))
+    stats_str_dex = ['str', 'dex']
+    existing_str_dex = [data.get("str", 0), data.get("dex", 0)]
+    distributed_str_dex = distribute_lvpoint(lvpoint, stats_str_dex, existing_str_dex)
+
+    data.update(distributed_str_dex)
+    return data
+
+def distribute_lvpoint(lvpoint, stats_group, existing_values):
+    total_existing = sum(existing_values)
+    total_points = lvpoint + total_existing
+    points_per_stat = total_points // len(stats_group)
+    remainder = total_points % len(stats_group)
+
+    distributed_points = {stat: points_per_stat for stat in stats_group}
+    for i, stat in enumerate(stats_group):
+        if i < remainder:
+            distributed_points[stat] += 1
+    return distributed_points
+
+# ฟังก์ชันการส่งข้อความแจ้งเตือนผ่าน LINE
 def send_line_message(user_id: str, message: str):
+    line_access_token = 'LINE_ACCESS_TOKEN'  # ใส่ Token ของ LINE ที่นี่
+    line_api_url = 'https://api.line.me/v2/bot/message/push'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {LINE_ACCESS_TOKEN}'
+        'Authorization': f'Bearer {line_access_token}'
     }
     data = {
         "to": user_id,
@@ -28,95 +68,36 @@ def send_line_message(user_id: str, message: str):
             "text": message
         }]
     }
-    response = req.post(LINE_API_URL, headers=headers, data=json.dumps(data))
+    response = requests.post(line_api_url, headers=headers, json=data)
     if response.status_code != 200:
         print(f"Error sending message: {response.status_code}")
         print(response.text)
 
+@app.route('/admin', methods=['GET', 'POST'])
+def admin_dashboard():
+    if request.method == 'POST':
+        charname = request.form.get('charname')
+        if charname:
+            char_data = get_character_data(charname)
+            request_data_store.append({
+                'charname': charname,
+                'data': char_data,
+                'status': 'กำลังส่ง GM แก้ไข'
+            })
+            message = f"มีคำขอแก้ไขข้อมูลตัวละคร: {charname}"
+            send_line_message("ADMIN_USER_ID", message)
+            return redirect(url_for('admin_dashboard'))
 
-@app.get("/", response_class=HTMLResponse)
-async def form_post(request: Request):
-    return templates.TemplateResponse("request_form.html", {"request": request})
+    return render_template('admin_dashboard.html', requests=request_data_store)
 
+@app.route('/update_status/<int:request_id>', methods=['POST'])
+def update_status(request_id):
+    new_status = request.form.get('status')
+    if request_id < len(request_data_store):
+        request_data_store[request_id]['status'] = new_status
+        message = f"คำขอ {request_data_store[request_id]['charname']} เปลี่ยนสถานะเป็น: {new_status}"
+        send_line_message("ADMIN_USER_ID", message)
+    return redirect(url_for('admin_dashboard'))
 
-@app.post("/submit")
-async def handle_request(
-        userid: str = Form(...), charname: str = Form(...),
-        str: str = Form(None), dex: str = Form(None),
-        esp: str = Form(None), spt: str = Form(None)):
-
-    if not userid or not charname:
-        raise HTTPException(status_code=400, detail="กรุณากรอก UserID และ ชื่อตัวละคร")
-
-    request_data = {
-        "userid": userid,
-        "charname": charname,
-        "str": str if str else "ไม่ระบุ",
-        "dex": dex if dex else "ไม่ระบุ",
-        "status": "กำลังส่ง GM แก้ไข"
-    }
-
-    request_data_store.append(request_data)
-    request_id = len(request_data_store) - 1
-
-    message = f"มีคำขอแก้สเตตัสในเกม\n\nUserID: {userid}\nตัวละคร: {charname}\nSTR: {str}\nDEX: {dex}"
-    send_line_message(ADMIN_USER_ID, message)
-
-    return RedirectResponse(url=f"/status/{request_id}", status_code=303)
-
-
-@app.get("/status/{request_id}", response_class=HTMLResponse)
-async def status_page(request: Request, request_id: int):
-    if request_id < 0 or request_id >= len(request_data_store):
-        return templates.TemplateResponse("error.html", {"request": request, "message": "ไม่พบคำขอนี้"})
-
-    # ตรวจสอบการเข้าสู่ระบบของแอดมิน
-    if request.cookies.get("admin_logged") != "true":
-        return templates.TemplateResponse("error.html", {"request": request, "message": "คุณไม่มีสิทธิ์เข้าถึงข้อมูลนี้"})
-
-    request = request_data_store[request_id]
-
-    # ข้อมูลสเตตัสที่คำนวณไว้จะถูกแสดงเฉพาะสำหรับแอดมิน
-    return templates.TemplateResponse("status_page.html", {"request": request})
-
-
-@app.get("/admin", response_class=HTMLResponse)
-async def admin_dashboard_form(request: Request):
-    if request.cookies.get("admin_logged") == "true":
-        return await show_admin_dashboard(request)
-    
-    return templates.TemplateResponse("admin_login.html", {"request": request})
-
-
-@app.post("/admin", response_class=HTMLResponse)
-async def admin_dashboard(request: Request, response: Response, password: str = Form(...)):
-    if password != ADMIN_PASSWORD:
-        raise HTTPException(status_code=401, detail="ไม่อนุญาตให้เข้าถึง")
-
-    response.set_cookie(key="admin_logged", value="true", httponly=True)
-
-    return await show_admin_dashboard(request)
-
-
-async def show_admin_dashboard(request: Request):
-    return templates.TemplateResponse("admin_dashboard.html", {"request": request, "requests": request_data_store})
-
-
-@app.post("/update_status")
-async def update_status(request_id: int = Form(...), status: str = Form(...)):
-    if request_id < 0 or request_id >= len(request_data_store):
-        raise HTTPException(status_code=400, detail="ไม่พบคำขอนี้")
-
-    request_data_store[request_id]["status"] = status
-    request = request_data_store[request_id]
-
-    message = f"คำขอของ {request['charname']} ({request['userid']}) ถูกอัปเดตสถานะเป็น: {status}"
-    send_line_message(ADMIN_USER_ID, message)
-
-    return RedirectResponse(url="/admin", status_code=303)
-
-
-@app.get("/logout")
-async def logout(response: Response):
-    response.delete_cookie(key="admin_logged")
-    return RedirectResponse(url="/admin", status_code=303)
+if __name__ == '__main__':
+    app.run(debug=True)
