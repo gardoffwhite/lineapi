@@ -1,100 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard - Character Lookup</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #1e1e2f;
+            color: #f1f1f1;
+            padding: 40px;
         }
-        h1, h2 {
-            color: #333;
+        h1 {
+            color: #00ffc3;
         }
-        table {
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #2b2b3c;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,255,195,0.2);
+        }
+        input[type="text"], input[type="submit"] {
+            padding: 10px;
             width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .form-container {
-            margin: 20px 0;
-        }
-        input[type="text"] {
-            padding: 8px;
-            width: 250px;
-            margin-right: 10px;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
+            margin-top: 10px;
+            border-radius: 8px;
             border: none;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #00ffc3;
+            color: #000;
+            font-weight: bold;
             cursor: pointer;
         }
-        button:hover {
-            background-color: #45a049;
+        .stat-block {
+            margin-top: 20px;
+        }
+        .stat-block p {
+            font-size: 16px;
+            margin-bottom: 5px;
+            border-bottom: 1px dashed #555;
+            padding-bottom: 4px;
         }
     </style>
 </head>
 <body>
-
-    <h1>Admin Dashboard - Character Management</h1>
-
-    <!-- ฟอร์มกรอกชื่อ Character -->
-    <div class="form-container">
-        <form method="POST" action="/">
-            <label for="charname">Enter Character Name:</label>
-            <input type="text" name="charname" id="charname" value="{{ charname }}" placeholder="Enter character name">
-            <button type="submit">Search</button>
+    <div class="container">
+        <h1>🔍 ค้นหาข้อมูลตัวละคร</h1>
+        <form method="POST">
+            <input type="text" name="charname" placeholder="ชื่อตัวละคร" value="{{ charname }}" required>
+            <input type="submit" value="ค้นหา">
         </form>
+
+        {% if char_data %}
+        <div class="stat-block">
+            <h2>📊 ข้อมูลตัวละคร: {{ charname }}</h2>
+            {% for key, value in char_data.items() %}
+                <p><strong>{{ key.upper() }}:</strong> {{ value }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
-
-    <!-- แสดงข้อมูลตัวละคร -->
-    {% if char_data %}
-    <h2>Character Data for: {{ charname }}</h2>
-    <table>
-        <tr>
-            <th>Field</th>
-            <th>Value</th>
-        </tr>
-        <tr>
-            <td>Character Name</td>
-            <td>{{ charname }}</td>
-        </tr>
-        <tr>
-            <td>STR (Strength)</td>
-            <td>{{ char_data['str'] }}</td>
-        </tr>
-        <tr>
-            <td>DEX (Dexterity)</td>
-            <td>{{ char_data['dex'] }}</td>
-        </tr>
-        <tr>
-            <td>LVPOINT (Level Points)</td>
-            <td>{{ char_data['lvpoint'] }}</td>
-        </tr>
-        <tr>
-            <td>Distributed STR</td>
-            <td>{{ char_data['str'] }}</td>
-        </tr>
-        <tr>
-            <td>Distributed DEX</td>
-            <td>{{ char_data['dex'] }}</td>
-        </tr>
-    </table>
-    {% else %}
-        <p>No character data available. Please enter a character name to search.</p>
-    {% endif %}
-
 </body>
 </html>
