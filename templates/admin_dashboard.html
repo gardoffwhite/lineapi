@@ -51,7 +51,7 @@
                 justify-content: start;
             }
 
-            select, button {
+            select, button, input[type="text"] {
                 padding: 5px 10px;
                 border-radius: 5px;
                 border: 1px solid #ccc;
@@ -84,6 +84,13 @@
     <body>
         <div class="container">
             <h2>แสดงคำขอแก้สเตตัส</h2>
+
+            <!-- ฟอร์มค้นหาชื่อตัวละคร -->
+            <form action="/search_char" method="get">
+                <input type="text" name="charname" placeholder="กรอกชื่อตัวละครเพื่อค้นหา" required>
+                <button type="submit">ค้นหา</button>
+            </form>
+
             <table>
                 <tr>
                     <th>UserID</th>
