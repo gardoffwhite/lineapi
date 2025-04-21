@@ -7,25 +7,18 @@ import json
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-LINE_ACCESS_TOKEN = '0iM/gg2Fj9sfdfw9pgEa9bSqLquHGZTgXyVub75iHO3TngYJKrMRrKy15BgCdlrAaBmicPz8c/5dkwce2ebL28zVKpV/6SSdnOnSFzX92jyakeBbPZOKjkzT8duPa8kB+km4j49TPnB5TdpDM29G7AdB04t89/1O/w1cDnyilFU='  # ใช้ Channel Access Token ของคุณ
-LINE_API_URL = 'https://api.line.me/v2/bot/message/push'  # URL สำหรับส่งข้อความ
-ADMIN_USER_ID = 'U85e0052a3176ddd793470a41b02b69fe'  # ใช้ User ID ของแอดมินที่ต้องการให้แชทบอทส่งข้อความไปหา
+LINE_ACCESS_TOKEN = 'YOUR_LINE_ACCESS_TOKEN'
+LINE_API_URL = 'https://api.line.me/v2/bot/message/push'
+ADMIN_USER_ID = 'YOUR_ADMIN_USERID'
 ADMIN_PASSWORD = "admin123"
-
 request_data_store = []
 
 def send_line_message(user_id: str, message: str):
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {LINE_ACCESS_TOKEN}'
-    }
-    data = {
-        "to": user_id,
-        "messages": [{"type": "text", "text": message}]
-    }
+    headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {LINE_ACCESS_TOKEN}'}
+    data = {"to": user_id, "messages": [{"type": "text", "text": message}]}
     response = req.post(LINE_API_URL, headers=headers, data=json.dumps(data))
     if response.status_code != 200:
-        print("Error sending message:", response.text)
+        print(f"Error sending message: {response.status_code}")
 
 @app.get("/", response_class=HTMLResponse)
 async def form_post(request: Request):
@@ -46,7 +39,8 @@ async def handle_request(userid: str = Form(...), charname: str = Form(...), str
 async def status_page(request: Request, request_id: int):
     if request_id < 0 or request_id >= len(request_data_store):
         return templates.TemplateResponse("error.html", {"request": request, "message": "ไม่พบคำขอนี้"})
-    return templates.TemplateResponse("status_page.html", {"request": request, "data": request_data_store[request_id]})
+    req_data = request_data_store[request_id]
+    return templates.TemplateResponse("status_page.html", {"request": request, "request_data": req_data})
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_dashboard_form(request: Request):
@@ -69,8 +63,9 @@ async def update_status(request_id: int = Form(...), status: str = Form(...)):
     if request_id < 0 or request_id >= len(request_data_store):
         raise HTTPException(status_code=400, detail="ไม่พบคำขอนี้")
     request_data_store[request_id]["status"] = status
-    data = request_data_store[request_id]
-    send_line_message(ADMIN_USER_ID, f"คำขอของ {data['charname']} ({data['userid']}) ถูกอัปเดตสถานะเป็น: {status}")
+    req_data = request_data_store[request_id]
+    message = f"คำขอของ {req_data['charname']} ({req_data['userid']}) ถูกอัปเดตสถานะเป็น: {status}"
+    send_line_message(ADMIN_USER_ID, message)
     return RedirectResponse(url="/admin", status_code=303)
 
 @app.get("/logout")
